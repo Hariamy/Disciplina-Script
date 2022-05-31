@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+	<title>Disciplina de Script</title>
+    
+</head>
+<body>
+    <div id="app"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            template: `
+            <div class="container" style="margin-top: 50px">
+                
+                    
+                <h1 align="center">Envie um valor</h1>
+                <hr/>
+                <div class="form-todo form-group">
+                    
+                    <p>
+                        <input v-on:keyup.enter="addNumero" type="number" name="valor" size="50" step="0.01" class="form-control" v-model="valor" placeholder="Digite um Valor"/>
+                    </p>
+                    <p align="center">
+                        <button v-on:click="addNumero"  type="submit" class="btn btn-primary">ENVIAR</button>
+                    </p>
+                   
+                </div>
+                <div v-show="temGanhador()">
+                    <h3>Valor Ganhador: {{atual_ganhador}}</h3>
+                    <hr/>
+                
+                </div>
+
+                <div v-show="temNumeroValido()">
+                    <h3>Números Válidos</h3>
+                    <ul class="list-group list-group-horizontal">
+                        <li class="list-group-item" v-for="numero in numeros_validos">{{numero}}</li>
+                    </ul>
+                <hr/>
+
+                </div>
+                
+                <div v-show="temNumeroInvalido()">
+                    <h3>Números Inválidos</h3>
+                    <ul class="list-group list-group-horizontal">
+                        <li class="list-group-item" v-for="numero in numeros_invalidos">{{numero}}</li>
+                    </ul>
+                </div>
+            
+            </div>
+            `,
+            data() {
+                return {
+                    numeros_validos: [],
+                    numeros_invalidos: [],
+                    atual_ganhador: "",
+                    valor: ""
+                }
+            },
+            created: async function() {
+                const response = await fetch("http://localhost:3000/api")
+                if (await response != undefined) {
+                    const res = await response.json()
+                    this.numeros_validos = res.numeros_validos
+                        this.numeros_invalidos = res.numeros_invalidos
+                        this.atual_ganhador = res.atual_ganhador
+                }
+
+            },
+            methods: {
+                
+                addNumero: async function() {
+                    
+                    const response = await fetch("http://localhost:3000/api", {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify ({
+                            valor: this.valor
+                        })
+                    })
+
+                    if (await response != undefined) {
+                        res = await response.json()
+                        this.valor = ""
+                        this.numeros_validos = res.numeros_validos
+                        this.numeros_invalidos = res.numeros_invalidos
+                        this.atual_ganhador = res.atual_ganhador
+                        
+                    }
+                },
+                temNumeroValido: function(){
+                    return this.numeros_validos.length > 0
+                },
+                temNumeroInvalido: function(){
+                    return this.numeros_invalidos.length > 0
+
+                },
+                temGanhador: function(){
+                    return this.atual_ganhador != null
+
+                }
+
+            }
+        })
+    </script>
+</body>
+</html>
