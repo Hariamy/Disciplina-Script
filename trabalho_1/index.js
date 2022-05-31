@@ -63,3 +63,6 @@ app.post('/api', (req, res) => {
 
 
 app.listen(process.env.port || 3000)
+
+console.log("Server rodando com sucesso!")
+console.log("Acesse: http://localhost:3000")
